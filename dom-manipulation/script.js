@@ -160,4 +160,58 @@ window.onload = () => {
   filterQuotes(); // Apply last filter
 };
 
+async function fetchQuotesFromServer() {
+  // Simulate a server API (could be replaced with actual backend endpoint)
+  const response = await fetch('https://jsonplaceholder.typicode.com/posts?_limit=5');
+  const serverData = await response.json();
+
+  // Transform dummy server data to fit quote structure
+  return serverData.map(post => ({
+    text: post.title,
+    category: 'Server'
+  }));
+}
+
+async function syncWithServer() {
+  try {
+    const serverQuotes = await fetchQuotesFromServer();
+    let newQuotesAdded = 0;
+
+    serverQuotes.forEach(serverQuote => {
+      const exists = quotes.some(
+        localQuote => localQuote.text === serverQuote.text && localQuote.category === serverQuote.category
+      );
+
+      if (!exists) {
+        quotes.push(serverQuote);
+        newQuotesAdded++;
+      }
+    });
+
+    if (newQuotesAdded > 0) {
+      saveQuotes();
+      populateCategories();
+      filterQuotes(); // or showRandomQuote()
+      showNotification(`${newQuotesAdded} new quote(s) synced from server`);
+    }
+
+  } catch (error) {
+    console.error("Sync failed:", error);
+    showNotification("Sync failed. Please try again.", true);
+  }
+}
+
+function showNotification(message, isError = false) {
+  const notif = document.getElementById("notification");
+  notif.style.display = "block";
+  notif.style.backgroundColor = isError ? "#f8d7da" : "#d1e7dd";
+  notif.style.color = isError ? "#842029" : "#0f5132";
+  notif.textContent = message;
+
+  setTimeout(() => {
+    notif.style.display = "none";
+  }, 5000);
+}
+
+setInterval(syncWithServer, 30000); // sync every 30 seconds
 

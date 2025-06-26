@@ -8,7 +8,9 @@
   <body>
     <h1>Dynamic Quote Generator</h1>
     <div id="quoteDisplay"></div>
+    <div id="notification" style="display: none; padding: 10px; margin: 10px 0;"></div>
     <button id="newQuote">Show New Quote</button>
+    <button onclick="syncWithServer()">Sync Now</button>
     <script src="script.js"></script>
 
     <!-- Export button -->
@@ -21,7 +23,5 @@
 <select id="categoryFilter" onchange="filterQuotes()">
   <option value="all">All Categories</option>
 </select>
-
-
-  </body>
+</body>
   </html>
