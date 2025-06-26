@@ -5,6 +5,11 @@ let quotes = [
   { text: "To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment.", category: "Identity" }
 ];
 
+// Save quotes to localStorage
+function saveQuotes() {
+  localStorage.setItem("quotes", JSON.stringify(quotes));
+}
+
 // Step 2: Show a random quote
 function showRandomQuote() {
   if (quotes.length === 0) return;
@@ -14,6 +19,9 @@ function showRandomQuote() {
 
   const quoteDisplay = document.getElementById("quoteDisplay");
   quoteDisplay.innerHTML = `<p><strong>${quote.category}</strong>: "${quote.text}"</p>`;
+
+  // Save last quote in session storage
+  sessionStorage.setItem("lastQuote", JSON.stringify(quote));
 }
 
 // Step 3: Add a new quote
@@ -26,11 +34,12 @@ function addQuote() {
 
   if (newText && newCategory) {
     quotes.push({ text: newText, category: newCategory });
-
+ saveQuotes(); // <-- Save to localStorage
     textInput.value = "";
     categoryInput.value = "";
 
     alert("Quote added successfully!");
+    populateCategories(); // in case it's a new category
   } else {
     alert("Please enter both a quote and a category.");
   }
@@ -69,3 +78,86 @@ window.onload = function () {
   showRandomQuote();
   createAddQuoteForm();
 };
+
+function exportToJson() {
+  const blob = new Blob([JSON.stringify(quotes, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "quotes.json";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+function importFromJsonFile(event) {
+  const fileReader = new FileReader();
+  fileReader.onload = function (e) {
+    try {
+      const importedQuotes = JSON.parse(e.target.result);
+      if (Array.isArray(importedQuotes)) {
+        quotes.push(...importedQuotes);
+        saveQuotes();
+        populateCategories();
+        alert("Quotes imported successfully!");
+      } else {
+        throw new Error("Invalid file format");
+      }
+    } catch (err) {
+      alert("Failed to import: " + err.message);
+    }
+  };
+  fileReader.readAsText(event.target.files[0]);
+}
+
+function populateCategories() {
+  const categories = [...new Set(quotes.map(q => q.category))];
+  const dropdown = document.getElementById("categoryFilter");
+
+  // Remember previous selection
+  const lastSelected = localStorage.getItem("selectedCategory");
+
+  dropdown.innerHTML = `<option value="all">All Categories</option>`;
+  categories.forEach(cat => {
+    const option = document.createElement("option");
+    option.value = cat;
+    option.textContent = cat;
+    dropdown.appendChild(option);
+  });
+
+  if (lastSelected) {
+    dropdown.value = lastSelected;
+    filterQuotes(); // Reapply filter
+  }
+}
+
+function filterQuotes() {
+  const selectedCategory = document.getElementById("categoryFilter").value;
+  localStorage.setItem("selectedCategory", selectedCategory); // Persist selection
+
+  let filtered = selectedCategory === "all"
+    ? quotes
+    : quotes.filter(q => q.category === selectedCategory);
+
+  const quoteDisplay = document.getElementById("quoteDisplay");
+  quoteDisplay.innerHTML = "";
+
+  if (filtered.length === 0) {
+    quoteDisplay.innerHTML = "<p>No quotes available for this category.</p>";
+    return;
+  }
+
+  filtered.forEach(q => {
+    const p = document.createElement("p");
+    p.innerHTML = `<strong>${q.category}</strong>: "${q.text}"`;
+    quoteDisplay.appendChild(p);
+  });
+}
+
+window.onload = () => {
+  populateCategories();
+  filterQuotes(); // Apply last filter
+};
+
+
