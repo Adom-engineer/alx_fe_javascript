@@ -237,4 +237,7 @@ window.onload = function () {
   populateCategories();
   filterQuotes();
   showRandomQuote();
+
+  // ✅ Must be here to safely attach after DOM is ready
+  document.getElementById("newQuote").addEventListener("click", showRandomQuote);
 };
