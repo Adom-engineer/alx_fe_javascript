@@ -183,7 +183,7 @@ async function fetchQuotesFromServer() {
 }
 
 // Sync quotes from server and merge with local
-async function syncWithServer() {
+async function syncQuotes() {
   try {
     const serverQuotes = await fetchQuotesFromServer();
     let newQuotesAdded = 0;
