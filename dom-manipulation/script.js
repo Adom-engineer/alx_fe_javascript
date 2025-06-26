@@ -36,8 +36,36 @@ function addQuote() {
   }
 }
 
-// Step 4: Add event listener for the "Show New Quote" button
+// Step 4: Create and insert the Add Quote form
+function createAddQuoteForm() {
+  const formContainer = document.createElement("div");
+
+  const quoteInput = document.createElement("input");
+  quoteInput.type = "text";
+  quoteInput.placeholder = "Enter a new quote";
+  quoteInput.id = "newQuoteText";
+
+  const categoryInput = document.createElement("input");
+  categoryInput.type = "text";
+  categoryInput.placeholder = "Enter quote category";
+  categoryInput.id = "newQuoteCategory";
+
+  const addButton = document.createElement("button");
+  addButton.textContent = "Add Quote";
+  addButton.onclick = addQuote;
+
+  formContainer.appendChild(quoteInput);
+  formContainer.appendChild(categoryInput);
+  formContainer.appendChild(addButton);
+
+  document.body.appendChild(formContainer);
+}
+
+// Step 5: Add event listener for the "Show New Quote" button
 document.getElementById("newQuote").addEventListener("click", showRandomQuote);
 
-// Optional: Automatically show a quote on page load
-window.onload = showRandomQuote;
+// Step 6: Run on page load
+window.onload = function () {
+  showRandomQuote();
+  createAddQuoteForm();
+};
